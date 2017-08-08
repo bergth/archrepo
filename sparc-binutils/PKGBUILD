@@ -1,0 +1,64 @@
+# Maintainer: Berger Theo <contact@thb.re>
+
+
+_target=sparc-elf
+_basever=2.29
+pkgname=${_target}-binutils
+
+pkgver=2.29
+pkgrel=1
+pkgdesc='binutils sparc'
+url='https://www.gnu.org/software/binutils/'
+license=('GPL3')
+source=("https://ftp.gnu.org/gnu/binutils/binutils-${pkgver}.tar.gz")
+sha1sums=('9be8328b6c119c2daec3702b0a91fa9675cd35ab')
+
+
+arch=('x86_64')
+depends=('glibc' 'zlib')
+
+prepare() {
+  cd binutils-$pkgver
+
+  # hack! - libiberty configure tests for header files using "$CPP $CPPFLAGS"
+  sed -i "/ac_cpp=/s/\$CPPFLAGS/\$CPPFLAGS -O2/" libiberty/configure
+
+  mkdir ${srcdir}/binutils-build
+}
+
+build() {
+    cd binutils-build
+   # ../binutils-${pkgver}/configure --target=sparc-elf \
+   #     --with-sysroot=/usr/${_target}
+   #  make
+   #  cd binutils-$pkgver
+
+     ../binutils-${_basever}/configure \
+      --prefix=/usr \
+      --program-prefix=${_target}- \
+      --with-lib-path=/usr/lib/binutils/${_target} \
+      --with-local-prefix=/usr/lib/${_target} \
+      --with-sysroot=/usr/${_target} \
+      --target=${_target} \
+      --host=${CHOST} \
+      --build=${CHOST}
+
+    make
+}
+
+check() {
+    cd binutils-build
+
+    make -k LDFLAGS="" check || true
+}
+
+
+package() {
+    cd binutils-build
+
+    make DESTDIR="$pkgdir" install
+
+  # Remove unwanted files
+  rm -rf ${pkgdir}/usr/share
+  rm -f ${pkgdir}/usr/sparc-elf/bin/{ar,as,ld,nm,objdump,ranlib,readelf,strip,objcopy}
+}
