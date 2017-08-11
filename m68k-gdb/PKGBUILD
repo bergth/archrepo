@@ -1,0 +1,45 @@
+
+# Maintainer: Allan McRae <allan@archlinux.org>
+
+# cross toolchain build order: binutils, headers, gcc (pass 1), w32api, mingwrt, gcc (pass 2)
+
+_target=m68k-linux-gnu
+_sysroot=/usr/lib/${_target}
+
+pkgname=${_target}-gdb
+_pkgname=gdb
+pkgver=8.0
+pkgrel=1
+pkgdesc="mips32 binutils"
+arch=('i686' 'x86_64')
+url="http://www.gnu.org/software/binutils/"
+license=('GPL')
+depends=(xz ncurses expat python2 guile)
+makedepends=(texinfo)
+source=(http://ftp.gnu.org/gnu/${_pkgname}/${_pkgname}-${pkgver}.tar.gz)
+md5sums=('9bb49d134916e73b2c01d01bf20363df')
+
+prepare() {
+	cd ${srcdir}/${_pkgname}-${pkgver}
+
+	sed -i "/ac_cpp=/s/\$CPPFLAGS/\$CPPFLAGS -O2/" libiberty/configure
+}
+
+
+build() {
+  cd ${srcdir}/${_pkgname}-${pkgver}
+  mkdir gdb-build && cd gdb-build
+
+  ../configure --prefix=${_sysroot} --bindir=/usr/bin \
+    --with-sysroot=${_sysroot} \
+    --build=$CHOST --host=$CHOST --target=${_target} \
+    --with-guile=no
+  make
+}
+
+package(){
+  cd ${srcdir}/${_pkgname}-${pkgver}/gdb-build
+  make DESTDIR=${pkgdir} install
+  # clean-up cross compiler root
+  rm -Rf ${pkgdir}/${_sysroot}/share/{info,man,locale}
+}
