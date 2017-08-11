@@ -10,10 +10,11 @@ pkgname=${_target}-binutils
 _pkgname=binutils
 pkgver=2.29
 pkgrel=1
-pkgdesc="mips32 binutils"
+pkgdesc="m68k binutils"
 arch=('i686' 'x86_64')
 url="http://www.gnu.org/software/binutils/"
 license=('GPL')
+groups=('m68k-toolchain')
 depends=('glibc>=2.10.1' 'zlib')
 options=('!libtool' '!distcc' '!ccache')
 source=(http://ftp.gnu.org/gnu/${_pkgname}/${_pkgname}-${pkgver}.tar.xz)
