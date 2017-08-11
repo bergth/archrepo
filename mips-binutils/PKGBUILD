@@ -1,0 +1,45 @@
+
+# Maintainer: Allan McRae <allan@archlinux.org>
+
+# cross toolchain build order: binutils, headers, gcc (pass 1), w32api, mingwrt, gcc (pass 2)
+
+_target=mips-elf
+_sysroot=/usr/lib/${_target}
+
+pkgname=${_target}-binutils
+_pkgname=binutils
+pkgver=2.29
+pkgrel=1
+pkgdesc="mips32 binutils"
+arch=('i686' 'x86_64')
+url="http://www.gnu.org/software/binutils/"
+license=('GPL')
+depends=('glibc>=2.10.1' 'zlib')
+options=('!libtool' '!distcc' '!ccache')
+source=(http://ftp.gnu.org/gnu/${_pkgname}/${_pkgname}-${pkgver}.tar.xz)
+md5sums=('87978750715952fbb9f870940e9dcbeb')
+
+prepare() {
+	cd ${srcdir}/${_pkgname}-${pkgver}
+
+	sed -i "/ac_cpp=/s/\$CPPFLAGS/\$CPPFLAGS -O2/" libiberty/configure
+}
+
+
+build() {
+  cd ${srcdir}/${_pkgname}-${pkgver}
+  mkdir binutils-build && cd binutils-build
+
+  ../configure --prefix=${_sysroot} --bindir=/usr/bin \
+    --with-sysroot=${_sysroot} \
+    --build=$CHOST --host=$CHOST --target=${_target}
+  make
+}
+
+package(){
+  cd ${srcdir}/${_pkgname}-${pkgver}/binutils-build
+  make DESTDIR=${pkgdir} install
+  # clean-up cross compiler root
+  rm -Rf ${pkgdir}/${_sysroot}/{info,man}
+
+}

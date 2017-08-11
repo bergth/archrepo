@@ -1,0 +1,50 @@
+
+# Maintainer: Allan McRae <allan@archlinux.org>
+
+# cross toolchain build order: binutils, headers, gcc (pass 1), w32api, mingwrt, gcc (pass 2)
+
+_target=mips-elf
+_sysroot=/usr/lib/${_target}
+
+pkgname=${_target}-gcc
+_pkgname=gcc
+pkgver=7.1.0
+pkgrel=1
+pkgdesc="mips32 binutils"
+arch=('i686' 'x86_64')
+url="http://www.gnu.org/software/binutils/"
+license=('GPL')
+depends=('libmpc' "${_target}-binutils")
+options=('!libtool' '!distcc' '!ccache')
+source=(http://ftp.gnu.org/gnu/${_pkgname}/${_pkgname}-${pkgver}.tar.bz2)
+md5sums=('6bf56a2bca9dac9dbbf8e8d1036964a8')
+
+prepare() {
+	cd ${srcdir}/${_pkgname}-${pkgver}
+	sed -i "/ac_cpp=/s/\$CPPFLAGS/\$CPPFLAGS -O2/" {libiberty,gcc}/configure
+	
+}
+
+
+build() {
+  cd ${srcdir}/${_pkgname}-${pkgver}
+  mkdir gcc-build && cd gcc-build
+	../configure --target=${_target} --prefix=${_sysroot} \
+  --bindir=/usr/bin \
+  --enable-languages=c --without-headers \
+  --with-gnu-ld --with-gnu-as \
+  --disable-shared --disable-threads \
+  --disable-libmudflap --disable-libgomp \
+  --disable-libssp --disable-libquadmath \
+  --disable-libatomic
+	
+	make
+
+}
+
+package(){
+  cd ${srcdir}/${_pkgname}-${pkgver}/gcc-build
+  make DESTDIR=${pkgdir} install
+  # clean-up cross compiler root
+  rm -Rf ${pkgdir}/${_sysroot}/{info,man}
+}
