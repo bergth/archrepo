@@ -1,0 +1,30 @@
+pkgname="touhou15"
+pkgver=1
+pkgrel=1
+pkgdesc="touhou 15"
+arch=('x86_64')
+url="www.touhou-online.net"
+groups=('bergth-games')
+depends=('wine')
+source=("ftp://ftp.touhou-online.net/Jeux%20Officiels/setupTH15.exe" 
+	"http://constexpr.org/innoextract/files/innoextract-1.6-linux.tar.xz"
+	"launch.sh")
+md5sums=('d154c627d15be0013fca6fc8f125d855' 
+	 '773f4bdc482f52e94e79217f8604f1ee'
+	 'cb509df9adc0d63b48cda080173a442e')
+
+prepare()
+{
+	cd ${srcdir}
+	./innoextract-1.6-linux/innoextract setupTH15.exe 
+}
+
+package()
+{
+	mkdir -p ${pkgdir}/opt/games/th15
+	cp -R ${srcdir}/app ${pkgdir}/opt/games/th15
+	cp ${srcdir}/launch.sh ${pkgdir}/opt/games/th15
+	chmod +x ${pkgdir}/opt/games/th15/launch.sh
+	mkdir -p ${pkgdir}/usr/bin
+	ln -s /opt/games/th15/launch.sh ${pkgdir}/usr/bin/touhou15
+}

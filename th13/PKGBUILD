@@ -1,0 +1,30 @@
+pkgname="touhou13"
+pkgver=1
+pkgrel=1
+pkgdesc="touhou 13"
+arch=('x86_64')
+url="www.touhou-online.net"
+groups=('bergth-games')
+depends=('wine')
+source=("ftp://ftp.touhou-online.net/Jeux%20Officiels/setupTH13.exe" 
+	"http://constexpr.org/innoextract/files/innoextract-1.6-linux.tar.xz"
+	"launch.sh")
+md5sums=('d06aef6b7bdb30d66c40d9f6b0a1982d' 
+	 '773f4bdc482f52e94e79217f8604f1ee'
+	 'SKIP')
+
+prepare()
+{
+	cd ${srcdir}
+	./innoextract-1.6-linux/innoextract setupTH13.exe 
+}
+
+package()
+{
+	mkdir -p ${pkgdir}/opt/games/th13
+	cp -R ${srcdir}/app ${pkgdir}/opt/games/th13
+	cp ${srcdir}/launch.sh ${pkgdir}/opt/games/th13
+	chmod +x ${pkgdir}/opt/games/th13/launch.sh
+	mkdir -p ${pkgdir}/usr/bin
+	ln -s /opt/games/th13/launch.sh ${pkgdir}/usr/bin/touhou13
+}

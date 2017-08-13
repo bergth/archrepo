@@ -1,0 +1,30 @@
+pkgname="touhou14"
+pkgver=1
+pkgrel=1
+pkgdesc="touhou 14"
+arch=('x86_64')
+url="www.touhou-online.net"
+groups=('bergth-games')
+depends=('wine')
+source=("ftp://ftp.touhou-online.net/Jeux%20Officiels/setupTH14.exe" 
+	"http://constexpr.org/innoextract/files/innoextract-1.6-linux.tar.xz"
+	"launch.sh")
+md5sums=('bbb819507f1b602ac718b6e144922b54' 
+	 '773f4bdc482f52e94e79217f8604f1ee'
+	 'SKIP')
+
+prepare()
+{
+	cd ${srcdir}
+	./innoextract-1.6-linux/innoextract setupTH14.exe 
+}
+
+package()
+{
+	mkdir -p ${pkgdir}/opt/games/th14
+	cp -R ${srcdir}/app ${pkgdir}/opt/games/th14
+	cp ${srcdir}/launch.sh ${pkgdir}/opt/games/th14
+	chmod +x ${pkgdir}/opt/games/th14/launch.sh
+	mkdir -p ${pkgdir}/usr/bin
+	ln -s /opt/games/th14/launch.sh ${pkgdir}/usr/bin/touhou14
+}

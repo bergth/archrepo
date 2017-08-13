@@ -1,0 +1,21 @@
+pkgname="touhou16"
+pkgver=1
+pkgrel=1
+pkgdesc="touhou 16"
+arch=('x86_64')
+url="www.touhou-online.net"
+groups=('bergth-games')
+depends=('wine')
+source=("TH16.zip" "launch.sh")
+md5sums=('1380565f2635f0fe7a64abaaf0ac296d' 
+	 '6e9abb971f06de97f3212c87fbd7c484')
+
+package()
+{
+	mkdir -p ${pkgdir}/opt/games/th16
+	cp -R ${srcdir}/TH16/th16 ${pkgdir}/opt/games/th16
+	cp  ${srcdir}/launch.sh ${pkgdir}/opt/games/th16
+	chmod +x ${pkgdir}/opt/games/th16/launch.sh
+	mkdir -p ${pkgdir}/usr/bin
+	ln -s /opt/games/th16/launch.sh ${pkgdir}/usr/bin/touhou16
+}
